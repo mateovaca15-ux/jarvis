@@ -50,12 +50,17 @@ Sigue los pasos 3 a 7 con estos cambios:
   PERMISSIONS=allowlist
   TZ_NAME=<tu zona horaria, por ejemplo America/Bogota>
   CLAUDE_MODEL=sonnet
+  BACKGROUND_MODEL=sonnet
   ```
 
   - `allowlist` solo deja leer y editar el vault, el calendario y leer Gmail o crear borradores. No puede mandar
     correos ni correr comandos. Pasa a `full` solo cuando confíes en él, y revisa `FORBIDDEN_TOOLS` en `server.mjs`.
-  - `sonnet` gasta menos de tu plan. El valor por defecto (`opus[1m]`) agota el límite de Pro rápido. Con Max puedes
-    dejar el valor por defecto.
+  - Con **Pro**, usa `sonnet` en los dos. `CLAUDE_MODEL` es el modelo de tus chats (por defecto `opus[1m]`).
+    `BACKGROUND_MODEL` es el de las tareas de fondo (por defecto `opus`): la agenda se consulta cada hora de 5 a 22 h,
+    más el saludo de la mañana, así que son ~18 llamadas por día aunque no escribas nada. Con Max puedes dejar los
+    valores por defecto.
+  - Escribe `/nuevo` de vez en cuando. La conversación continúa con `--resume`, y una conversación larga gasta más en
+    cada mensaje.
   - Con `allowlist` no puede correr `whisper-cli` ni `yt-dlp`, así que los resúmenes de podcasts no funcionan.
 
 ## 4. Para que siga siendo gratis

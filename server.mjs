@@ -25,6 +25,8 @@ const cfg = {
   dryRun: process.env.DRY_RUN === '1', // print replies instead of sending
   ownerName: process.env.OWNER_NAME || '',
   model: process.env.CLAUDE_MODEL || 'opus[1m]', // pinned so a change in ~/.claude/settings.json doesn't downgrade it
+  // Background jobs (agenda fetch, morning greeting, HUD briefing). Set to sonnet on a Pro plan: the agenda runs hourly.
+  bgModel: process.env.BACKGROUND_MODEL || 'opus',
   claudeBin: process.env.CLAUDE_BIN || path.join(os.homedir(), '.local/bin/claude'),
   timeoutMs: Number(process.env.CLAUDE_TIMEOUT_MS || 30 * 60_000), // podcasts take a while to transcribe
   // full: everything except FORBIDDEN_TOOLS (dedicated server). allowlist: only ALLOWED_TOOLS (laptop).
@@ -253,7 +255,7 @@ function refreshAgenda() {
     `[{"id":"...","title":"...","start":"ISO 8601 with offset","end":"ISO 8601 with offset","description":"plain text (strip HTML), keep line breaks, max 1500 chars, \"\" if none",` +
     `"calendar":"calendarId it came from","link":"the event's htmlLink","location":"\"\" if none","meet":"video call URL (hangoutLink or conferenceData entry point), \"\" if none",` +
     `"attendees":["display name, or email if no name; exclude me; max 12; [] if none"]}]`,
-    { model: 'opus', tools: ['mcp__claude_ai_Google_Calendar'] },
+    { model: cfg.bgModel, tools: ['mcp__claude_ai_Google_Calendar'] },
   ).then((out) => {
     const json = out.slice(out.indexOf('['), out.lastIndexOf(']') + 1);
     try {
@@ -319,7 +321,7 @@ async function morningGreeting(firstEvent) {
     `2 o 3 líneas cortas, ${GREETING_STYLE}, específico: algo real de ayer o de hoy, nada genérico. ` +
     `Sin listas ni títulos; solo *negrita* de WhatsApp si hace falta. Todavía no sabe cómo durmió: no inventes datos de sueño. ` +
     `Termina con una frase corta para que responda; cuando responda, TÚ le vas a mandar cómo durmió y su día (no se lo pidas a él). Devuelve solo el texto del mensaje.`,
-    { model: 'opus', tools: ['Read', 'Glob', 'Grep'], cwd: cfg.vault },
+    { model: cfg.bgModel, tools: ['Read', 'Glob', 'Grep'], cwd: cfg.vault },
   );
   return text && !text.startsWith('⚠️') ? text.trim() : fallback;
 }
@@ -627,7 +629,7 @@ async function jarvisBriefing(at = '') {
       `No nombres clientes, empresas externas ni personas (puede ir a un video): di "una reunión", no con quién. ` +
       `Máximo 6 oraciones cortas y 65 palabras en total. Solo texto para decir en voz alta: sin markdown, sin emojis, sin listas, horas como "a las cuatro". ` +
       `Datos (JSON): ${JSON.stringify(data)}`,
-      { model: 'opus', tools: ['Read'], cwd: DIR },
+      { model: cfg.bgModel, tools: ['Read'], cwd: DIR },
     );
     const text = out.startsWith('⚠️') || out.length < 20 ? briefingFallback(s) : out.trim();
     Object.assign(briefingCache, { at: Date.now(), text });
