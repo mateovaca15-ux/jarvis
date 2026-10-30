@@ -52,6 +52,10 @@ const ALLOWED_TOOLS = [
   'Bash(git status:*)', 'Bash(git diff:*)', 'Bash(git log:*)',
   'Bash(git add:*)', 'Bash(git commit:*)',
   'mcp__claude_ai_Google_Calendar',
+  // Gmail: read and draft only. Sending stays off (see FORBIDDEN_TOOLS for full mode).
+  'mcp__claude_ai_Gmail__search_threads', 'mcp__claude_ai_Gmail__get_thread', 'mcp__claude_ai_Gmail__get_message',
+  'mcp__claude_ai_Gmail__list_labels', 'mcp__claude_ai_Gmail__list_drafts', 'mcp__claude_ai_Gmail__get_draft',
+  'mcp__claude_ai_Gmail__create_draft',
 ];
 // Outward-facing or destructive tools that stay off even in full mode.
 const FORBIDDEN_TOOLS = [
